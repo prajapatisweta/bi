@@ -1,0 +1,87 @@
+////// Classification///////
+# Get the data points in form of a R vector.
+rainfall <- c(799,1174.8,865.1,1334.6,635.4,918.5,685.5,998.6,784.2,985,882.8,1071)
+# Convert it to a time series object.
+rainfall.timeseries <- ts(rainfall,start = c(2012,1),frequency = 12)
+# Print the timeseries data.
+print(rainfall.timeseries)
+# Give the chart file a name.
+png(file = "rainfall.png")
+# Plot a graph of the time series.
+plot(rainfall.timeseries)
+# Save the file.
+dev.off()
+
+////////Clustering//////////
+print(iris)
+newiris <- iris
+newiris$Species <- NULL 
+print(newiris)
+(kc <- kmeans(newiris,4))
+table(iris$Species, kc$cluster)
+plot(newiris[c("Sepal.Length","Sepal.Width")],col=kc$cluster)
+points(kc$centers[,c("Sepal.Length", "Sepal.Width")],col=1:3,pch=8,cex=2)
+
+///////Linear Regression////////
+x <- c(151,174,138,186,128,136,179,163,152,131) # height
+y <- c(63,81,56,91,47,57,76,72,62,48) # weight
+relation <- lm(y~x)
+print(summary(relation))
+a <- data.frame(x = 170)
+result <- predict(relation,a)
+print(result)
+png(file = "linearregression.png")
+# Plot the chart.
+plot(y,x,col = "blue",main = "Height & Weight Regression", abline(lm(x~y)),cex = 1.3,pch = 
+       16,xlab = "Weight in Kg",ylab = "Height in cm")
+# Save the file.
+dev.off()
+
+/////////Logistic Regression///////////
+quality <- read.csv('G:/sweta-practicals/Sem 6/BI/extra/Practical 10/quality.csv')
+str(quality)
+table(quality$PoorCare)
+98/131
+install.packages("caTools")
+library(caTools)
+set.seed(88)
+split = sample.split(quality$PoorCare, SplitRatio = 0.75)
+split
+qualityTrain = subset(quality, split == TRUE)
+qualityTest = subset(quality, split == FALSE)
+nrow(qualityTrain)
+nrow(qualityTest)
+QualityLog = glm(PoorCare ~ OfficeVisits + Narcotics, data = qualityTrain, family = binomial)
+summary(QualityLog)
+predictTrain = predict(QualityLog, type = "response")
+summary(predictTrain)
+tapply(predictTrain, qualityTrain$PoorCare, mean)
+table(qualityTrain$PoorCare, predictTrain > 0.5)
+10/25
+70/74
+table(qualityTrain$PoorCare, predictTrain > 0.7)
+8/25
+73/74
+table(qualityTrain$PoorCare, predictTrain > 0.2)
+16/25
+54/74
+
+install.packages("ROCR")
+library(ROCR)
+ROCRpred = prediction(predictTrain, qualityTrain$PoorCare)
+ROCRpref = performance(ROCRpred, "tpr", "fpr")
+plot(ROCRpref)
+plot(ROCRpref, colorize=TRUE)
+plot(ROCRpref, colorize=TRUE, print, print.cutoffs.at = seq(0,1,by = 0.1), text.adj = c(-0.2,0.7))
+
+
+//////////Decision Tree///////////
+install.packages("party")
+library(party)
+print(head(readingSkills))
+input.dat <- readingSkills[c(1:105),]
+png(file = "decision_tree.png")
+output.tree <- ctree(nativeSpeaker ~ age + shoeSize + score,data = input.dat)
+plot(output.tree)
+dev.off()
+
